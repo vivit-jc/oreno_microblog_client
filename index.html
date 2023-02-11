@@ -36,7 +36,8 @@ const vueapp = {
         text: "",
         timestamp: 0,
         posts: [],
-        count: 0
+        count: 0,
+        test: false
       }
     },
     mounted(){
@@ -49,14 +50,20 @@ const vueapp = {
             + this.text
             + '"></a></blockquote>'
           embed = true
+        } else if(new RegExp(/\b(?:https?):\/\/(?:www\.)?(?:youtube\.com|youtu\.be)\/[\w!?/+\-|:=~;.,*&@#$%()'"[\]]+/g).test(this.text)){
+          let str = this.text.match(/v=(.+)/)[1]
+          this.text = `<iframe width="560" height="315" src="https://www.youtube.com/embed/${str}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>`
+          embed = true
         }
         const timestamp = Date.now()
-        set(ref(database, 'posts/' + timestamp), {
+        if(!this.test){
+          set(ref(database, 'posts/' + timestamp), {
             text: this.text,
             timestamp: timestamp,
             r18: false,
             embed: embed
-        });
+          });
+        }
         this.text = ""
       },
     }
