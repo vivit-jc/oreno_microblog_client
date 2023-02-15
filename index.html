@@ -37,6 +37,7 @@ const vueapp = {
         timestamp: 0,
         posts: [],
         count: 0,
+        tags: [],
         test: false
       }
     },
@@ -54,6 +55,10 @@ const vueapp = {
           let str = this.text.match(/v=(.+)/)[1]
           this.text = `<iframe width="560" height="315" src="https://www.youtube.com/embed/${str}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>`
           embed = true
+        } else if(new RegExp(/(\[.+\])+/).test(this.text)){
+          this.tags = this.text.match(/\[.+\]/)[0].replace("][",",").replace("[","").replace("]","").split(",")
+          this.text = this.text.match(/\[.+\](.*)/)[1]
+          console.log(JSON.stringify(this.tags),this.text)
         }
         const timestamp = Date.now()
         if(!this.test){
@@ -61,7 +66,8 @@ const vueapp = {
             text: this.text,
             timestamp: timestamp,
             r18: false,
-            embed: embed
+            embed: embed,
+            tags: this.tags
           });
         }
         this.text = ""
