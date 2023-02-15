@@ -38,7 +38,7 @@ const vueapp = {
         posts: [],
         count: 0,
         tags: [],
-        test: false
+        test: true
       }
     },
     mounted(){
@@ -57,8 +57,7 @@ const vueapp = {
           embed = true
         } else if(new RegExp(/(\[.+\])+/).test(this.text)){
           this.tags = this.text.match(/\[.+\]/)[0].replace("][",",").replace("[","").replace("]","").split(",")
-          this.text = this.text.match(/\[.+\](.*)/)[1]
-          console.log(JSON.stringify(this.tags),this.text)
+          this.text = this.text.match(/\[.+\]([\s\S]*)/)[1]
         }
         const timestamp = Date.now()
         if(!this.test){
