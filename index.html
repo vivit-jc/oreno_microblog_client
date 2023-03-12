@@ -3,17 +3,20 @@
 <head>
   <meta charset="utf-8">
   <title>Straitter Continent</title>
+  <link href="./main.css" rel="stylesheet">
 </head>
 <body>
 <div id="app">
 <textarea v-model="text" rows="5" cols="33"></textarea><br>
-<button @click="writeText()">投稿</button><br>
+<button @click="writeText()">投稿</button>
+<span class="tag" v-for="tag in tags" @click="addTag(tag)">{{tag}}</span>
+<br>
 <p v-for="post in posts">{{post.text}}: {{post.timestamp}}</p>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/vue"></script>
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js';
-import { getDatabase, ref, set } from 'https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js';
+import { getDatabase, ref, set, get } from 'https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js';
 
 const firebaseConfig = {
   apiKey: "AIzaSyDFW53XswLqX3ASdY7-lA8Mm4ai7YVV6mk",
@@ -38,10 +41,22 @@ const vueapp = {
         posts: [],
         count: 0,
         tags: [],
-        test: true
+        test: false
       }
     },
     mounted(){
+      const dataRef = ref(database, "tags/" );
+
+      get(dataRef).then((snapshot) => {
+        if (snapshot.exists()) {
+          this.tags = snapshot.val();
+          console.log("tags load ok")
+        } else {
+          console.log("No data available");
+        }
+      }).catch((error) => {
+        console.error(error);
+      });
     },
     methods: {
       writeText() {
@@ -70,7 +85,11 @@ const vueapp = {
           });
         }
         this.text = ""
+        this.tags = []
       },
+      addTag(tag){
+        this.text = "[" + tag + "]" + this.text
+      }
     }
 }
 Vue.createApp(vueapp).mount('#app')
