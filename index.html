@@ -9,7 +9,7 @@
 <div id="app">
 <textarea v-model="text" rows="5" cols="33"></textarea><br>
 <button @click="writeText()">投稿</button>
-<span class="tag" v-for="tag in tags" @click="addTag(tag)">{{tag}}</span>
+<span class="tag" v-for="tag in tag_list" @click="addTag(tag)">{{tag}}</span>
 <br>
 <p v-for="post in posts">{{post.text}}: {{post.timestamp}}</p>
 </div>
@@ -41,15 +41,15 @@ const vueapp = {
         posts: [],
         count: 0,
         tags: [],
+        tag_list: [],
         test: false
       }
     },
     mounted(){
       const dataRef = ref(database, "tags/" );
-
       get(dataRef).then((snapshot) => {
         if (snapshot.exists()) {
-          this.tags = snapshot.val();
+          this.tag_list = snapshot.val();
           console.log("tags load ok")
         } else {
           console.log("No data available");
