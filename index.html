@@ -66,8 +66,13 @@ const vueapp = {
             + this.text
             + '"></a></blockquote>'
           embed = true
-        } else if(new RegExp(/\b(?:https?):\/\/(?:www\.)?(?:youtube\.com|youtu\.be)\/[\w!?/+\-|:=~;.,*&@#$%()'"[\]]+/g).test(this.text)){
-          let str = this.text.match(/v=(.+)/)[1]
+        } else if(new RegExp(/\b(?:https?):\/\/(?:www\.)?(?:youtube\.com|youtu\.be)\/(?:shorts\/)[\w!?/+\-|:=~;.,*&@#$%()'"[\]]+/g).test(this.text)){
+          let str = this.text.match(/v=(.+)/)
+          if(str === null){ // shortのとき
+            str = this.text.match(/shorts\/(.+)/)[1]
+          } else { // それ以外
+            str = str[1]
+          }
           this.text = `<iframe width="560" height="315" src="https://www.youtube.com/embed/${str}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>`
           embed = true
         } else if(new RegExp(/(\[.+\])+/).test(this.text)){
