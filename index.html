@@ -46,19 +46,22 @@ const vueapp = {
       }
     },
     mounted(){
-      const dataRef = ref(database, "tags/" );
-      get(dataRef).then((snapshot) => {
-        if (snapshot.exists()) {
-          this.tag_list = snapshot.val();
-          console.log("tags load ok")
-        } else {
-          console.log("No data available");
-        }
-      }).catch((error) => {
-        console.error(error);
-      });
+      this.get()
     },
     methods: {
+      get(){
+        const dataRef = ref(database, "tags/" );
+        get(dataRef).then((snapshot) => {
+          if (snapshot.exists()) {
+            this.tag_list = snapshot.val();
+            console.log("tags load ok")
+          } else {
+            console.log("No data available");
+          }
+        }).catch((error) => {
+          console.error(error);
+        });
+      },
       writeText() {
         let embed = false
         if(new RegExp('https:\/\/twitter.com\/.+\/status\/\[0-9]+').test(this.text)){
@@ -66,7 +69,7 @@ const vueapp = {
             + this.text
             + '"></a></blockquote>'
           embed = true
-        } else if(new RegExp(/\b(?:https?):\/\/(?:www\.)?(?:youtube\.com|youtu\.be)\/(?:shorts\/)[\w!?/+\-|:=~;.,*&@#$%()'"[\]]+/g).test(this.text)){
+        } else if(new RegExp(/(youtube\.com|youtu\.be)/g).test(this.text)){
           let str = this.text.match(/v=(.+)/)
           if(str === null){ // shortのとき
             str = this.text.match(/shorts\/(.+)/)[1]
@@ -76,8 +79,11 @@ const vueapp = {
           this.text = `<iframe width="560" height="315" src="https://www.youtube.com/embed/${str}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>`
           embed = true
         } else if(new RegExp(/(\[.+\])+/).test(this.text)){
-          this.tags = this.text.match(/\[.+\]/)[0].replace("][",",").replace("[","").replace("]","").split(",")
+          console.log(JSON.stringify(this.text.match(/\[.+\]/)))
+          this.tags = this.text.match(/\[.+\]/)[0].replace(/\]\[/g,",").replace(/\[/g,"").replace(/\]/g,"").split(",")
           this.text = this.text.match(/\[.+\]([\s\S]*)/)[1]
+          console.log(JSON.stringify(this.tags))
+          this.updateTagList()
         }
         const timestamp = Date.now()
         if(!this.test){
@@ -91,6 +97,13 @@ const vueapp = {
         }
         this.text = ""
         this.tags = []
+      },
+      updateTagList(){
+        if(this.test){return false}
+        let temp_tag_list = this.tags.concat(this.tag_list) 
+        temp_tag_list = temp_tag_list.filter((elem, index, self) => self.indexOf(elem) === index);
+        set(ref(database, 'tags/'), temp_tag_list)
+        this.get()
       },
       addTag(tag){
         this.text = "[" + tag + "]" + this.text
