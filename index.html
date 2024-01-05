@@ -76,13 +76,20 @@ const vueapp = {
           embed = true
         } else if(new RegExp(/(youtube\.com|youtu\.be)/g).test(this.text)){
           let str = this.text.match(/v=(.+)/)
-          if(str === null){ // shortのとき
-            str = this.text.match(/shorts\/(.+)/)[1]
-          } else { // それ以外
+          if(str){
             str = str[1]
+            embed = true
+          } else {
+            str = this.text.match(/shorts\/(.+)/)
+            if(str){
+              str = str[1]
+              embed = true
+            } else {
+              embed = false
+            }
           }
+          if(embed)
           this.text = `<iframe width="560" height="315" src="https://www.youtube.com/embed/${str}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>`
-          embed = true
         }
         const timestamp = Date.now()
         if(!this.test){
